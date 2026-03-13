@@ -47,36 +47,33 @@ export default function DashboardSection() {
         setError('')
 
         try {
-            let res
+            // 1. Upload Workload Features
+            const uploadRes = await fetch(`${API_BASE}/upload_workload`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(workloadForm),
+            })
 
-            if (file) {
-                const formData = new FormData()
-                formData.append('file', file)
-                // Optionally still pass numeric hints alongside the document
-                Object.entries(workloadForm).forEach(([key, value]) => {
-                    formData.append(key, String(value))
-                })
-
-                res = await fetch(`${API_BASE}/policy/predict-from-doc`, {
-                    method: 'POST',
-                    body: formData,
-                })
-            } else {
-                res = await fetch(`${API_BASE}/policy/predict`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(workloadForm),
-                })
+            if (!uploadRes.ok) {
+                throw new Error('Failed to upload workload features')
             }
 
-            if (!res.ok) {
-                throw new Error('Failed to get policy prediction')
+            const { workload_id } = await uploadRes.json()
+
+            // 2. Trigger ML Analysis
+            const analyzeRes = await fetch(`${API_BASE}/analyze_workload?workload_id=${workload_id}`, {
+                method: 'POST',
+            })
+
+            if (!analyzeRes.ok) {
+                throw new Error('Failed to get policy prediction from ML model')
             }
 
-            const data = await res.json()
-            // Expected Policy Prediction Response:
-            // { workload_type, predicted_policy, hybrid_ratio, confidence, reason: [] }
+            const data = await analyzeRes.json()
+
+            // Store and show result
             setPolicyResult(data)
+            sessionStorage.setItem('cachex:lastPrediction', JSON.stringify(data))
         } catch (err) {
             setError(err.message || 'Something went wrong')
         } finally {
@@ -106,7 +103,7 @@ export default function DashboardSection() {
                             </div>
                             <div className="flex items-center gap-3">
                                 {policyResult && (
-                                    <button 
+                                    <button
                                         onClick={() => {
                                             sessionStorage.removeItem('cachex:lastPrediction')
                                             setPolicyResult(null)
@@ -154,7 +151,7 @@ export default function DashboardSection() {
                             <div className="flex flex-col gap-6">
                                 <div className={`transition-all duration-700 ${policyResult ? 'bg-slate-900' : 'bg-slate-800/50'} text-white rounded-[2.5rem] p-8 md:p-10 shadow-3xl relative overflow-hidden group`}>
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:bg-blue-600/20 transition-all duration-1000"></div>
-                                    
+
                                     <div className="relative flex items-center justify-between mb-8">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-3 h-3 rounded-full ${policyResult ? 'bg-emerald-500 animate-pulse' : 'bg-slate-600'}`}></div>
@@ -237,7 +234,7 @@ export default function DashboardSection() {
                                 >
                                     <span className="relative z-10 flex items-center justify-center gap-2">
                                         {loading ? 'Processing Neural Model...' : 'Execute Policy Optimization'}
-                                        {!loading && <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current stroke-2 group-hover:translate-x-1 transition-transform"><path d="M5 12h14M12 5l7 7-7 7"/></svg>}
+                                        {!loading && <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current stroke-2 group-hover:translate-x-1 transition-transform"><path d="M5 12h14M12 5l7 7-7 7" /></svg>}
                                     </span>
                                 </button>
                             </div>

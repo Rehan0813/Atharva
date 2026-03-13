@@ -13,6 +13,7 @@ const bars = [
 
 export default function BloodPressureCard() {
     const barsRef = useRef([])
+    const [avgLatency, setAvgLatency] = React.useState(0.42)
 
     useEffect(() => {
         barsRef.current.forEach((el, i) => {
@@ -20,6 +21,22 @@ export default function BloodPressureCard() {
                 el.style.animationDelay = `${i * 0.05}s`
             }
         })
+
+        const fetchMetrics = async () => {
+            try {
+                const res = await fetch('/api/cache_metrics')
+                if (res.ok) {
+                    const data = await res.json()
+                    setAvgLatency(data.latency)
+                }
+            } catch (e) {
+                console.error('Failed to fetch metrics', e)
+            }
+        }
+
+        fetchMetrics()
+        const interval = setInterval(fetchMetrics, 5000)
+        return () => clearInterval(interval)
     }, [])
 
     return (
@@ -28,7 +45,7 @@ export default function BloodPressureCard() {
                 <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Latency Distribution</p>
                     <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-4xl font-black text-slate-900 tracking-tighter">0.42</span>
+                        <span className="text-4xl font-black text-slate-900 tracking-tighter">{avgLatency}</span>
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">ms (avg)</span>
                     </div>
                 </div>

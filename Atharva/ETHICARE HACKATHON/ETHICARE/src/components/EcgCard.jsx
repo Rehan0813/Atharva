@@ -5,8 +5,24 @@ export default function EcgCard() {
     const canvasRef = useRef(null)
     const animRef = useRef(null)
     const offsetRef = useRef(0)
+    const [hitRate, setHitRate] = React.useState(84)
 
     useEffect(() => {
+        const fetchMetrics = async () => {
+            try {
+                const res = await fetch('/api/cache_metrics')
+                if (res.ok) {
+                    const data = await res.json()
+                    setHitRate(Math.round(data.cache_hit_rate * 100))
+                }
+            } catch (e) {
+                console.error('Failed to fetch metrics', e)
+            }
+        }
+
+        fetchMetrics()
+        const interval = setInterval(fetchMetrics, 5000)
+
         const canvas = canvasRef.current
         if (!canvas) return
         const ctx = canvas.getContext('2d')
@@ -72,17 +88,20 @@ export default function EcgCard() {
         }
 
         draw()
-        return () => cancelAnimationFrame(animRef.current)
+        return () => {
+            cancelAnimationFrame(animRef.current)
+            clearInterval(interval)
+        }
     }, [])
 
     return (
         <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] p-7 shadow-2xl shadow-blue-900/5 border border-white/80 transition-all duration-500 hover:shadow-blue-900/10 w-full group">
             <div className="flex items-start justify-between mb-4">
                 <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Throughput Profile</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Efficiency Profile</p>
                     <div className="flex items-baseline gap-2 mt-2">
-                        <span className="text-4xl font-black text-slate-900 tracking-tighter">1,240</span>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">ops/s</span>
+                        <span className="text-4xl font-black text-slate-900 tracking-tighter">{hitRate}</span>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">% Hit Rate</span>
                     </div>
                 </div>
                 <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 group-hover:scale-110 transition-transform">
