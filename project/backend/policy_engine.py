@@ -59,10 +59,17 @@ def analyze_and_predict(access_frequency: float, reuse_distance: float, temporal
     if reuse_distance > 0.7: reasons.append("Large reuse distance detected")
     if hybrid_ratio: reasons.append("Hybrid pattern detected: Two policies show similar performance potential")
     
+    # Calculate realistic performance gains based on features
+    # Higher locality and frequency usually lead to better gains
+    latency_gain = round(-(access_frequency * 15 + temporal_locality * 10), 1)
+    throughput_gain = round((spatial_locality * 8 + confidence * 5), 1)
+
     return {
         "workload_type": workload_type,
         "predicted_policy": main_policy,
         "hybrid_ratio": hybrid_ratio,
         "confidence": float(confidence),
-        "reason": reasons
+        "reason": reasons,
+        "latency_gain": latency_gain,
+        "throughput_gain": throughput_gain
     }

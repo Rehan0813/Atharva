@@ -35,6 +35,10 @@ export default function DashboardSection() {
             try {
                 const parsed = JSON.parse(stored)
                 setPolicyResult(parsed)
+                // If it came from a file, update form to show the calculated averages
+                if (parsed.extracted_features) {
+                    setWorkloadForm(parsed.extracted_features)
+                }
             } catch (e) {
                 console.error('Failed to parse cached prediction', e)
             }
@@ -161,7 +165,7 @@ export default function DashboardSection() {
                                         </div>
                                         {policyResult && (
                                             <span className="text-[10px] font-black text-white/40 uppercase tracking-widest bg-white/5 px-3 py-1 rounded-lg">
-                                                ID: {Math.random().toString(16).slice(2, 8).toUpperCase()}
+                                                ID: {policyResult.workload_id || 'LOCAL-SIM'}
                                             </span>
                                         )}
                                     </div>
@@ -188,11 +192,11 @@ export default function DashboardSection() {
                                                 </div>
                                             </div>
 
-                                            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/5">
+                                            <div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/50">
                                                 {[
-                                                    { label: 'Hybrid Ratio', value: policyResult.hybrid_ratio || '70/30' },
-                                                    { label: 'Latency Gain', value: '-24.8ms' },
-                                                    { label: 'Throughput', value: '+12.4%' },
+                                                    { label: 'Analysis Date', value: policyResult.created_at || 'JUST NOW' },
+                                                    { label: 'Latency Gain', value: `${policyResult.latency_gain}ms` },
+                                                    { label: 'Throughput', value: `${(policyResult.throughput_gain >= 0 ? '+' : '')}${policyResult.throughput_gain}%` },
                                                 ].map((stat) => (
                                                     <div key={stat.label} className="p-4 rounded-2xl bg-white/5 border border-white/10">
                                                         <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] mb-1">{stat.label}</p>
@@ -204,6 +208,21 @@ export default function DashboardSection() {
                                             {Array.isArray(policyResult.reason) && (
                                                 <div className="space-y-3">
                                                     <p className="text-[10px] font-black text-white/30 uppercase tracking-widest">Neural Reasoning & Insights</p>
+
+                                                    {policyResult.extracted_features && (
+                                                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 mb-2">
+                                                            <p className="text-[8px] font-black text-blue-400 uppercase tracking-widest mb-2">Calculated CSV Averages</p>
+                                                            <div className="grid grid-cols-4 gap-2">
+                                                                {Object.entries(policyResult.extracted_features).map(([k, v]) => (
+                                                                    <div key={k}>
+                                                                        <p className="text-[7px] text-white/40 uppercase mb-1 truncate">{k.replace('_', ' ')}</p>
+                                                                        <p className="text-[10px] font-bold text-white">{v.toFixed(3)}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
                                                     <div className="grid grid-cols-1 gap-2">
                                                         {policyResult.reason.slice(0, 3).map((r, idx) => (
                                                             <div key={idx} className="flex gap-4 p-4 rounded-xl bg-blue-600/5 border border-blue-600/10 text-xs font-medium text-white/80 group/item hover:bg-blue-600/10 transition-colors">

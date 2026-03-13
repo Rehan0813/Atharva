@@ -14,6 +14,9 @@ class PolicyResponse(BaseModel):
     hybrid_ratio: Optional[str] = None
     confidence: float
     reason: List[str]
+    latency_gain: float
+    throughput_gain: float
+    created_at: Optional[str] = None
 
 class DashboardMetricsResponse(BaseModel):
     cache_hit_rate: float

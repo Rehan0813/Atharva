@@ -32,6 +32,11 @@ async def upload_workload_file(file: UploadFile = File(...), db: Session = Depen
         else:
             raise HTTPException(status_code=400, detail="Unsupported format. Use CSV or JSON.")
         
+        required_cols = ["access_frequency", "reuse_distance", "temporal_locality", "spatial_locality"]
+        missing = [col for col in required_cols if col not in df.columns]
+        if missing:
+            raise HTTPException(status_code=400, detail=f"File missing required columns: {', '.join(missing)}")
+
         # Calculate feature averages from the trace
         avg_features = {
             "access_frequency": float(df["access_frequency"].mean()),
@@ -39,12 +44,10 @@ async def upload_workload_file(file: UploadFile = File(...), db: Session = Depen
             "temporal_locality": float(df["temporal_locality"].mean()),
             "spatial_locality": float(df["spatial_locality"].mean())
         }
-    except Exception:
-        # Fallback for demo stability
-        avg_features = {
-            "access_frequency": 0.8, "reuse_distance": 0.3, 
-            "temporal_locality": 0.85, "spatial_locality": 0.6
-        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to parse file: {str(e)}")
 
     # 1. Store Ingested Workload
     new_workload = models.Workload(
@@ -64,7 +67,9 @@ async def upload_workload_file(file: UploadFile = File(...), db: Session = Depen
         predicted_policy=prediction["predicted_policy"],
         hybrid_ratio=prediction["hybrid_ratio"],
         confidence=prediction["confidence"],
-        explanation="; ".join(prediction["reason"])
+        explanation="; ".join(prediction["reason"]),
+        latency_gain=prediction["latency_gain"],
+        throughput_gain=prediction["throughput_gain"]
     )
     db.add(new_policy)
     db.commit()
@@ -73,6 +78,8 @@ async def upload_workload_file(file: UploadFile = File(...), db: Session = Depen
         "status": "success",
         "workload_id": new_workload.id,
         "filename": filename,
+        "extracted_features": avg_features,
+        "created_at": new_policy.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         **prediction
     }
 
@@ -121,18 +128,31 @@ def analyze_workload(workload_id: int, db: Session = Depends(get_db)):
         predicted_policy=prediction["predicted_policy"],
         hybrid_ratio=prediction["hybrid_ratio"],
         confidence=prediction["confidence"],
-        explanation="; ".join(prediction["reason"])
+        explanation="; ".join(prediction["reason"]),
+        latency_gain=prediction["latency_gain"],
+        throughput_gain=prediction["throughput_gain"]
     )
     db.add(new_policy)
     db.commit()
 
-    return prediction
+    return {
+        **prediction,
+        "workload_id": workload.id,
+        "created_at": new_policy.created_at.strftime("%Y-%m-%d %H:%M:%S")
+    }
 
 @app.get("/cache_metrics", response_model=schemas.DashboardMetricsResponse)
-def get_cache_metrics():
+def get_cache_metrics(db: Session = Depends(get_db)):
     """
-    Returns cache performance metrics (simulated).
+    Returns metrics correlated with the latest uploaded workload.
     """
+    latest_workload = db.query(models.Workload).order_by(models.Workload.timestamp.desc()).first()
+    if latest_workload:
+        return simulate_metrics(
+            latest_workload.access_frequency,
+            latest_workload.temporal_locality,
+            latest_workload.spatial_locality
+        )
     return simulate_metrics()
 
 @app.get("/policy_history", response_model=List[schemas.PolicyHistoryItem])
@@ -153,9 +173,9 @@ def get_policy_history(db: Session = Depends(get_db)):
 @app.get("/dashboard_data")
 def get_dashboard_data(db: Session = Depends(get_db)):
     """
-    Returns aggregated data for charts.
+    Returns aggregated data for charts based on latest workload.
     """
-    metrics = simulate_metrics()
+    metrics = get_cache_metrics(db)
     history = get_policy_history(db)
     
     return {

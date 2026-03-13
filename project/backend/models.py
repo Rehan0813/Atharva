@@ -26,6 +26,8 @@ class Policy(Base):
     hybrid_ratio = Column(String(100), nullable=True)
     confidence = Column(Float)
     explanation = Column(Text)
+    latency_gain = Column(Float, default=0.0)
+    throughput_gain = Column(Float, default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     workload = relationship("Workload", back_populates="policies")

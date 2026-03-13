@@ -1,13 +1,20 @@
 import random
 
-def simulate_metrics():
-    hit_rate = round(random.uniform(0.70, 0.95), 2)
-    miss_rate = round(1.0 - hit_rate, 2)
-    latency = round(random.uniform(5.0, 25.0), 1)
+def simulate_metrics(access_frequency=0.7, temporal_locality=0.8, spatial_locality=0.5):
+    # Base performance on real features
+    hit_rate = round(0.4 + (access_frequency * 0.3) + (temporal_locality * 0.25), 2)
+    hit_rate = min(0.98, max(0.1, hit_rate)) # Clamp
     
-    # Energy-Aware Features
-    energy_usage = round(random.uniform(1.2, 5.0), 2) # in Watts/Joule
-    power_consumption = round(random.uniform(10.0, 50.0), 2) # in mW
+    miss_rate = round(1.0 - hit_rate, 2)
+    
+    # Latency decreases with higher locality (better cache performance)
+    latency = round(30.0 - (temporal_locality * 15 + spatial_locality * 5), 1)
+    latency = max(2.0, latency) # Minimum latency floor
+    
+    # Energy usage fluctuates slightly but correlates with intensity
+    base_energy = 1.5 + (access_frequency * 2.0)
+    energy_usage = round(base_energy + random.uniform(-0.2, 0.2), 2)
+    power_consumption = round(energy_usage * 10, 2)
     
     return {
         "cache_hit_rate": hit_rate,
