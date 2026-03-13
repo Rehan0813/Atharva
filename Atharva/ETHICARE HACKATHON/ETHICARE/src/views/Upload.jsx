@@ -36,26 +36,28 @@ export default function Upload() {
         setError('')
 
         try {
-            // HACKATHON MOCK: Simulate server processing
-            await new Promise(resolve => setTimeout(resolve, 2000))
+            const formData = new FormData()
+            formData.append('file', file)
 
-            const mockData = {
-                workload_type: 'Relational Database',
-                predicted_policy: 'ARC (Adaptive Replacement)',
-                hybrid_ratio: '85/15',
-                confidence: 0.96,
-                reason: [
-                    'Detected high temporal locality in telemetry traces.',
-                    'Spatial correlation suggests predictive prefetching.',
-                    'Frequency bias justifies LFU-based weighting (ARC).'
-                ],
-                timestamp: new Date().toLocaleTimeString()
+            const res = await fetch(`${API_BASE}/upload_file`, {
+                method: 'POST',
+                body: formData,
+            })
+
+            if (!res.ok) {
+                const errData = await res.json()
+                throw new Error(errData.detail || 'Failed to analyze workload file')
             }
 
-            sessionStorage.setItem('cachex:lastPrediction', JSON.stringify(mockData))
+            const data = await res.json()
+
+            // Expected response: { status: 'success', workload_id, filename, predicted_policy, ... }
+            sessionStorage.setItem('cachex:lastPrediction', JSON.stringify(data))
+
+            // Success navigation
             navigate('/dashboard')
         } catch (err) {
-            setError(err?.message || 'Something went wrong')
+            setError(err?.message || 'Something went wrong during ingestion')
         } finally {
             setLoading(false)
         }
@@ -72,7 +74,7 @@ export default function Upload() {
                         Workload <span className="text-blue-600">Analysis</span>
                     </h1>
                     <p className="text-lg text-slate-600 font-medium max-w-2xl leading-relaxed">
-                        Upload access traces or configuration files. Our AI engine will parse the workload patterns 
+                        Upload access traces or configuration files. Our AI engine will parse the workload patterns
                         to determine the mathematically optimal cache policy.
                     </p>
                 </div>
@@ -157,7 +159,7 @@ export default function Upload() {
                                 {loading ? 'Analyzing...' : 'Ingest & Optimize'}
                             </button>
                         </div>
-                        
+
                         <div className="rounded-[2.5rem] bg-white/40 backdrop-blur-xl border border-white p-8 shadow-xl">
                             <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest mb-4 flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
