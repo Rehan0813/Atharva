@@ -6,8 +6,8 @@ export default function HeroSection() {
     const navigate = useNavigate()
 
     return (
-        <section className="relative pt-10 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-6 py-12">
+        <section className="relative pt-4 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-6 py-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
                     {/* LEFT: Spline 3D visual */}
@@ -19,6 +19,15 @@ export default function HeroSection() {
                                     <div className="absolute -bottom-10 -right-10 w-56 h-56 bg-indigo-500/20 blur-3xl rounded-full" />
                                 </div>
                                 <Spline scene="https://prod.spline.design/sxbyIS7iRPcxjfK5/scene.splinecode" />
+
+                                {/* Watermark Cover */}
+                                <div className="absolute bottom-0 right-0 p-3 z-10">
+                                    <div className="px-4 py-1.5 rounded-full bg-[#111827]/80 border border-white/10 backdrop-blur-xl shadow-2xl">
+                                        <p className="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] whitespace-nowrap">
+                                            CacheX Engine v4.0
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -40,7 +49,7 @@ export default function HeroSection() {
                         </div>
 
                         <p className="text-lg text-slate-600 font-medium leading-relaxed max-w-xl">
-                            Atharva analyzes workloads, predicts cache strategies, and prefetches data with explainable AI reasoning. 
+                            Atharva analyzes workloads, predicts cache strategies, and prefetches data with explainable AI reasoning.
                             Built for industrial-scale memory optimization.
                         </p>
 

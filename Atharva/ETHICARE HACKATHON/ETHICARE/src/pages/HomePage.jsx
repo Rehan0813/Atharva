@@ -7,7 +7,7 @@ export default function HomePage() {
     return (
         <div className="relative min-h-screen bg-[#e0f7ff] font-sans overflow-x-hidden">
             <BackgroundBlobs />
-            <div className="relative z-10 pt-12">
+            <div className="relative z-10 pt-2">
                 <div className="animate-slide-up">
                     <HeroSection />
                 </div>

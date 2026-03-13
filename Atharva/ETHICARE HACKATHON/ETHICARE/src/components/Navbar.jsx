@@ -12,7 +12,7 @@ export default function Navbar() {
                             C
                         </div>
                         <div className="leading-tight hidden sm:block">
-                            <div className="text-sm font-black text-white tracking-tighter uppercase italic">Cachec Engineers</div>
+                            <div className="text-sm font-black text-white tracking-tighter uppercase italic">CacheX Engineers</div>
                         </div>
                     </Link>
 
@@ -28,9 +28,8 @@ export default function Navbar() {
                                 key={link.to}
                                 to={link.to}
                                 className={({ isActive }) =>
-                                    `px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                                        isActive 
-                                        ? 'bg-white text-black shadow-lg' 
+                                    `px-4 py-2 rounded-xl text-xs font-bold transition-all ${isActive
+                                        ? 'bg-white text-black shadow-lg'
                                         : 'text-white/60 hover:text-white hover:bg-white/5'
                                     }`
                                 }
