@@ -14,7 +14,7 @@ const steps = [
 
 export default function Architecture() {
     return (
-        <div className="relative min-h-screen bg-[#e0f7ff] font-sans overflow-x-hidden pt-32 pb-20">
+        <div className="relative min-h-screen bg-[#e0f7ff] font-sans overflow-x-hidden pt-20 pb-20">
             <BackgroundBlobs />
             <div className="relative z-10 max-w-7xl mx-auto px-6">
                 <div className="flex flex-col gap-4 mb-12 animate-slide-up">
@@ -23,7 +23,7 @@ export default function Architecture() {
                         System Architecture
                     </h1>
                     <p className="text-lg text-slate-600 font-medium max-w-3xl leading-relaxed">
-                        Atharva Cache Intelligence is built on a closed-loop learning pipeline. 
+                        Atharva Cache Intelligence is built on a closed-loop learning pipeline.
                         Every memory request flows through our neural controller to ensure optimal performance.
                     </p>
                 </div>

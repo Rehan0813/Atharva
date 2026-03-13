@@ -21,7 +21,7 @@ export default function HeroSection() {
                                 <Spline scene="https://prod.spline.design/sxbyIS7iRPcxjfK5/scene.splinecode" />
 
                                 {/* Watermark Cover */}
-                                <div className="absolute bottom-0 right-0 p-3 z-10">
+                                <div className="absolute bottom-10 right-0 p-3 z-10">
                                     <div className="px-4 py-1.5 rounded-full bg-[#111827]/80 border border-white/10 backdrop-blur-xl shadow-2xl">
                                         <p className="text-[9px] font-black text-blue-400 uppercase tracking-[0.2em] whitespace-nowrap">
                                             CacheX Engine v4.0

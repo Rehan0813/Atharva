@@ -56,7 +56,7 @@ const features = [
 
 export default function Features() {
     return (
-        <div className="relative min-h-screen bg-[#e0f7ff] font-sans overflow-x-hidden pt-32 pb-20">
+        <div className="relative min-h-screen bg-[#e0f7ff] font-sans overflow-x-hidden pt-20 pb-20">
             <BackgroundBlobs />
             <div className="relative z-10 max-w-7xl mx-auto px-6 text-center mb-16 animate-slide-up">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-700 text-xs font-black uppercase tracking-widest mb-6 border border-blue-200">

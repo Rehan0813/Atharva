@@ -4,7 +4,7 @@ import BackgroundBlobs from '../components/BackgroundBlobs'
 
 export default function Dashboard() {
     return (
-        <div className="relative min-h-screen bg-[#e0f7ff] font-sans overflow-x-hidden pt-32 pb-20">
+        <div className="relative min-h-screen bg-[#e0f7ff] font-sans overflow-x-hidden pt-20 pb-20">
             <BackgroundBlobs />
             <div className="relative z-10 max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 animate-slide-up">
@@ -14,7 +14,7 @@ export default function Dashboard() {
                             Engine Console <span className="text-blue-600 italic">v4.0</span>
                         </h1>
                         <p className="text-lg text-slate-600 font-medium max-w-2xl leading-relaxed">
-                            Real-time observability and workload classification. 
+                            Real-time observability and workload classification.
                             Monitor your cache infrastructure with sub-millisecond precision.
                         </p>
                     </div>

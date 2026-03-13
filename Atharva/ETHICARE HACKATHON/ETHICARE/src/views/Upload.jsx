@@ -64,7 +64,7 @@ export default function Upload() {
     }
 
     return (
-        <div className="relative min-h-screen bg-[#e0f7ff] font-sans overflow-x-hidden pt-32 pb-20">
+        <div className="relative min-h-screen bg-[#e0f7ff] font-sans overflow-x-hidden pt-20 pb-20">
             <BackgroundBlobs />
             <div className="relative z-10 max-w-5xl mx-auto px-6">
                 <div className="space-y-4 mb-12 animate-slide-up">

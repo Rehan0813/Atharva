@@ -27,7 +27,7 @@ const steps = [
 
 export default function DemoFlow() {
     return (
-        <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="max-w-6xl mx-auto px-6 pt-20 pb-10">
             <p className="text-xs uppercase tracking-wider text-slate-500">Demo</p>
             <h1 className="text-4xl font-semibold tracking-tight text-slate-900 mt-2">
                 Judge Demo Flow
