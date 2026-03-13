@@ -1,13 +1,18 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from database import Base
+
+# IST Timezone (GMT+5:30)
+IST = timezone(timedelta(hours=5, minutes=30))
+def get_ist_now():
+    return datetime.now(IST)
 
 class Workload(Base):
     __tablename__ = "workloads"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    timestamp = Column(DateTime, default=datetime.utcnow)
+    timestamp = Column(DateTime, default=get_ist_now)
     workload_type = Column(String(50))
     access_frequency = Column(Float)
     reuse_distance = Column(Float)
@@ -28,7 +33,7 @@ class Policy(Base):
     explanation = Column(Text)
     latency_gain = Column(Float, default=0.0)
     throughput_gain = Column(Float, default=0.0)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=get_ist_now)
 
     workload = relationship("Workload", back_populates="policies")
 
@@ -42,7 +47,7 @@ class CacheMetric(Base):
     latency = Column(Float)
     energy_usage = Column(Float) # New field for Energy-Aware feature
     power_consumption = Column(Float) # New field
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=get_ist_now)
 
 class PrefetchPrediction(Base):
     __tablename__ = "prefetch_predictions"

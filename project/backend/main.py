@@ -10,6 +10,7 @@ import schemas
 from policy_engine import analyze_and_predict
 from cache_engine import simulate_metrics
 from prefetch_engine import analyze_pattern
+from models import get_ist_now
 
 # Initialize database schemas
 models.Base.metadata.create_all(bind=engine)
@@ -79,7 +80,7 @@ async def upload_workload_file(file: UploadFile = File(...), db: Session = Depen
         "workload_id": new_workload.id,
         "filename": filename,
         "extracted_features": avg_features,
-        "created_at": new_policy.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "created_at": new_policy.created_at.strftime("%Y-%m-%d %H:%M:%S IST"),
         **prediction
     }
 
@@ -138,7 +139,7 @@ def analyze_workload(workload_id: int, db: Session = Depends(get_db)):
     return {
         **prediction,
         "workload_id": workload.id,
-        "created_at": new_policy.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        "created_at": new_policy.created_at.strftime("%Y-%m-%d %H:%M:%S IST")
     }
 
 @app.get("/cache_metrics", response_model=schemas.DashboardMetricsResponse)
