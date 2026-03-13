@@ -120,6 +120,7 @@ export default function Upload() {
                             <input
                                 ref={inputRef}
                                 type="file"
+                                accept=".csv, .json"
                                 className="hidden"
                                 onChange={(e) => onFile(e.target.files?.[0] || null)}
                             />
