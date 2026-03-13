@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import EcgCard from './EcgCard'
 import BloodPressureCard from './BloodPressureCard'
+import HistoryCard from './HistoryCard'
 
 const API_BASE = '/api'
 
@@ -13,7 +14,9 @@ export default function DashboardSection() {
     })
 
     const [policyResult, setPolicyResult] = useState(null)
+    const [history, setHistory] = useState([])
     const [loading, setLoading] = useState(false)
+    const [historyLoading, setHistoryLoading] = useState(false)
     const [error, setError] = useState('')
     const [file, setFile] = useState(null)
 
@@ -28,7 +31,23 @@ export default function DashboardSection() {
 
 
 
+    const fetchHistory = async () => {
+        setHistoryLoading(true)
+        try {
+            const res = await fetch(`${API_BASE}/policy_history`)
+            if (res.ok) {
+                const data = await res.json()
+                setHistory(data)
+            }
+        } catch (e) {
+            console.error('Failed to fetch history', e)
+        } finally {
+            setHistoryLoading(false)
+        }
+    }
+
     useEffect(() => {
+        fetchHistory()
         // Sync with upload results
         const stored = sessionStorage.getItem('cachex:lastPrediction')
         if (stored) {
@@ -78,6 +97,7 @@ export default function DashboardSection() {
             // Store and show result
             setPolicyResult(data)
             sessionStorage.setItem('cachex:lastPrediction', JSON.stringify(data))
+            fetchHistory()
         } catch (err) {
             setError(err.message || 'Something went wrong')
         } finally {
@@ -92,6 +112,11 @@ export default function DashboardSection() {
                 <div className="xl:col-span-4 flex flex-col gap-8 animate-slide-up" style={{ animationDelay: '0.15s' }}>
                     <EcgCard />
                     <BloodPressureCard />
+                    <HistoryCard
+                        history={history}
+                        loading={historyLoading}
+                        onRefresh={fetchHistory}
+                    />
                 </div>
 
                 {/* RIGHT: Workload form + policy and history */}
@@ -246,20 +271,10 @@ export default function DashboardSection() {
                                     )}
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="relative overflow-hidden group w-full rounded-[1.5rem] bg-blue-600 px-6 py-5 text-sm font-black text-white shadow-2xl shadow-blue-500/20 hover:bg-blue-500 transition-all active:scale-[0.98] disabled:opacity-50"
-                                >
-                                    <span className="relative z-10 flex items-center justify-center gap-2">
-                                        {loading ? 'Processing Neural Model...' : 'Execute Policy Optimization'}
-                                        {!loading && <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current stroke-2 group-hover:translate-x-1 transition-transform"><path d="M5 12h14M12 5l7 7-7 7" /></svg>}
-                                    </span>
-                                </button>
+
                             </div>
                         </form>
                     </div>
-
                 </div>
             </div>
         </section>

@@ -17,6 +17,38 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Atharva - Adaptive Cache Optimization")
 
+@app.post("/preview_csv")
+async def preview_csv(file: UploadFile = File(...)):
+    """
+    Parses a CSV/JSON file and returns all rows with exact values.
+    The frontend uses this to let the user pick which row to analyse.
+    """
+    content = await file.read()
+    filename = file.filename.lower()
+
+    try:
+        if filename.endswith('.csv'):
+            df = pd.read_csv(io.BytesIO(content))
+        elif filename.endswith('.json'):
+            df = pd.read_json(io.BytesIO(content))
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported format. Use CSV or JSON.")
+
+        required_cols = ["access_frequency", "reuse_distance", "temporal_locality", "spatial_locality"]
+        missing = [col for col in required_cols if col not in df.columns]
+        if missing:
+            raise HTTPException(status_code=400, detail=f"File missing required columns: {', '.join(missing)}")
+
+        # Return exact values – no averaging
+        rows = df[required_cols].to_dict(orient="records")
+        return {"columns": required_cols, "rows": rows, "total": len(rows)}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to parse file: {str(e)}")
+
+
 @app.post("/upload_file")
 async def upload_workload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
     """
